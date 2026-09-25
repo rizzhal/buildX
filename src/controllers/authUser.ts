@@ -1,0 +1,74 @@
+
+import type { FastifyRequest , FastifyReply } from "fastify";
+import { connection } from "../db/connect.js";
+import bcrypt from 'bcrypt'
+import type { SignupBody, SigninBody } from "../utils/types.js";
+
+export const signup = async (request: FastifyRequest<{Body: SignupBody}>, reply: FastifyReply ):Promise<void> => {
+
+    try {
+    const {name , email, password} = request.body 
+    if(!name || !email || !password) {
+        return reply.status(400).send({message: "Invalid inputs"})
+    }
+
+    const existingUser = await connection.query(
+        `SELECT id 
+         FROM userSchema.users
+         WHERE email = $1
+         `,
+         [email]
+    )
+
+    if(existingUser.rows.length > 0){
+        return reply.status(409).send({ message: 'User already exists' })
+    }
+
+    const passHash:string = await bcrypt.hash(password , 10)
+
+    const result = await connection.query(
+        ` 
+        INSERT INTO userSchema.users
+             (name, email, password_hash)
+        VALUES
+             ($1, $2, $3)
+        RETURNING id, name, email, is_active, created_at, updated_at
+        `,
+             [name , email, passHash]
+    );
+
+    return reply.status(201).send({
+        message: 'User created successfully',
+        user: result.rows[0]
+    })
+    } catch (error:unknown) {
+        if(error instanceof Error){
+            reply.status(500).send({message: 'Internal server error'})
+        } else {
+            console.error("Something went wrong" , error)
+        }
+    }
+}
+
+export const login = async(request: FastifyRequest<{Body: SigninBody}>, reply: FastifyReply):Promise<void> => {
+    
+    const {email , password} = request.body
+
+    if(!email || !password){
+        return reply.status(500).send({message: 'Something went wrong'})
+    }
+
+    const existingUser = await connection.query(
+        `
+         SELECT id 
+         FROM userSchema.users
+         WHERE email = $1 AND
+         `,
+         [email]
+    )
+    if(existingUser.rows.length > 0){
+        return reply.status(409).send({message: `User already exists`})
+    }
+
+    const compare = await bcrypt.compare(password , existingUser.rows[0].password)
+}

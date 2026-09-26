@@ -3,6 +3,9 @@ import type { FastifyRequest , FastifyReply } from "fastify";
 import { connection } from "../db/connect.js";
 import bcrypt from 'bcrypt'
 import type { SignupBody, SigninBody } from "../utils/types.js";
+import  jwt from "jsonwebtoken"
+import type { Secret , SignOptions } from "jsonwebtoken";
+
 
 export const signup = async (request: FastifyRequest<{Body: SignupBody}>, reply: FastifyReply ):Promise<void> => {
 
@@ -70,5 +73,27 @@ export const login = async(request: FastifyRequest<{Body: SigninBody}>, reply: F
         return reply.status(409).send({message: `User already exists`})
     }
 
-    const compare = await bcrypt.compare(password , existingUser.rows[0].password)
+    const isMatch = await bcrypt.compare(password , existingUser.rows[0].password)
+    
+    if(!isMatch){
+        throw new Error("Something went wrong")
+    }
+    
+    const payload = { 
+        userId: existingUser.rows[0].id
+     }
+    
+    const SECRET: Secret = process.env.JWT_SECRET || 'default-secret'
+    const EXPIRY: SignOptions['expiresIn'] = process.env.JWT_EXPIRY as SignOptions['expiresIn'] || '1h' 
+
+    const token = jwt.sign(payload , SECRET , 
+        { expiresIn: EXPIRY }
+     )
+
+     if(!token){
+        throw new Error("something went wrong in logging in")
+     }
+
+
+
 }

@@ -8,10 +8,13 @@ import type { Secret , SignOptions } from "jsonwebtoken";
 
 
 export const signup = async (request: FastifyRequest<{Body: SignupBody}>, reply: FastifyReply ):Promise<void> => {
-
+    
     try {
+
     const {name , email, password} = request.body 
+
     if(!name || !email || !password) {
+
         return reply.status(400).send({message: "Invalid inputs"})
     }
 
@@ -55,6 +58,8 @@ export const signup = async (request: FastifyRequest<{Body: SignupBody}>, reply:
 
 export const login = async(request: FastifyRequest<{Body: SigninBody}>, reply: FastifyReply):Promise<void> => {
     
+    try {
+        
     const {email , password} = request.body
 
     if(!email || !password){
@@ -90,10 +95,79 @@ export const login = async(request: FastifyRequest<{Body: SigninBody}>, reply: F
         { expiresIn: EXPIRY }
      )
 
+     console.log(token)
+
      if(!token){
         throw new Error("something went wrong in logging in")
      }
 
+     reply.setCookie('token' , token ,{
+        path: '/',
+        sameSite:"lax",
+        httpOnly:true,
+        secure: "auto",
+        maxAge:86400
+     })
 
+     return reply.status(201).send({message: "User logged in successfully"})
 
+      } catch (error : unknown) {
+
+        if(error instanceof Error){
+
+            reply.status(500).send({ message: " Error logging in " })
+        }
+    }
+
+}
+
+export const logout = async (request:FastifyRequest , reply: FastifyReply) => {
+    try {
+        reply.clearCookie('token', {
+            path:"/",
+            sameSite:"lax",
+            httpOnly:true,
+            secure:"auto",
+            maxAge:86400
+        })
+        return reply.status(201).send({message: "User logged out successfully"})
+    } catch (error: unknown) {
+        if(error instanceof Error){
+            reply.status(500).send({message: "Error logging out" })
+        } else {
+            console.error("Internal server error" , error)
+        }
+    }
+}
+
+export const getCurrentUser = async (request:FastifyRequest , reply: FastifyReply) => {
+    try {
+
+        
+        const currentUser = await connection.query(
+            `
+            SELECT id , name , email, is_active, created_at, updated_at 
+            FROM userSchema.users
+            where id = $1
+            `,
+
+        )
+        const userId = currentUser.rows[0]
+        
+        if(!userId){
+            return reply.status(404).send({ message: "User not found" })
+        }
+
+        return reply.status(200).send({message: "success" ,
+            userId
+        })
+
+    } catch (error : unknown) {
+        if(error instanceof Error)
+        {
+            reply.status(500).send({ message: "Error getting user" })
+        } else {
+            console.error("Internal server error" , error)
+        }
+    }
 }

@@ -10,7 +10,10 @@ const app = fastify(
     }
 )
 
-app.register(fastifyCookie) 
+app.register(fastifyCookie , {
+    secret: "cookieSecret",
+    hook: "onRequest"
+}) 
 
 
 

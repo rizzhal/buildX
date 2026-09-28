@@ -142,8 +142,6 @@ export const logout = async (request:FastifyRequest , reply: FastifyReply) => {
 
 export const getCurrentUser = async (request:FastifyRequest , reply: FastifyReply) => {
     try {
-
-        
         const currentUser = await connection.query(
             `
             SELECT id , name , email, is_active, created_at, updated_at 

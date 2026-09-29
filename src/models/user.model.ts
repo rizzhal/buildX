@@ -1,5 +1,5 @@
 
-import { connection } from "../db/connect.js"
+import { connection } from "../config/db/connect.js"
 
 
 // User schema

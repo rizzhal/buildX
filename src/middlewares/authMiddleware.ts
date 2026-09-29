@@ -35,7 +35,7 @@ export const authMiddleware = async (request: FastifyRequest , reply: FastifyRep
         }
 
         try {
-            const  existingUser = connection.query(
+            const  existingUser = await connection.query(
                 `
                 SELECT id, email FROM userSchema.users
                 WHERE id = $1
@@ -43,11 +43,11 @@ export const authMiddleware = async (request: FastifyRequest , reply: FastifyRep
                 [decoded.userId]
             )
 
-            if((await existingUser).rows.length === 0){
+            if(existingUser.rows.length === 0){
                 return reply.status(401).send({ message: "User not exists"})
             }
             
-            request.user = { id: (await existingUser).rows[0].id, email: (await existingUser).rows[0].email }
+            request.user = { id: existingUser.rows[0].id, email: existingUser.rows[0].email }
 
         } catch (error:unknown) {
             if(error instanceof Error){

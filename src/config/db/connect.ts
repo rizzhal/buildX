@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 
- const connection  = new Pool({
+ export const connection  = new Pool({
     user: process.env.PGUSER,
     password: process.env.PGPASSWORD,
     host:   process.env.PGHOST,

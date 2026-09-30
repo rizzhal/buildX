@@ -1,14 +1,13 @@
 
-import appPool from "../config/db/dbInstance.js"
-
+import { connection } from "../config/db/connect.js"
 
 // User schema
 async function userSchema():Promise<void> {
     try {
        
-        await appPool.query(`CREATE SCHEMA IF NOT EXISTS userSchema`)
+        await connection.query(`CREATE SCHEMA IF NOT EXISTS userSchema`)
         // Create table as user's table
-        await appPool.query(`
+        await connection.query(`
             CREATE TABLE IF NOT EXISTS userSchema.users(
             id BIGSERIAL PRIMARY KEY,
             name VARCHAR(100),
@@ -29,4 +28,4 @@ async function userSchema():Promise<void> {
     }
 }
 
-userSchema()
+await userSchema()

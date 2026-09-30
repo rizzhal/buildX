@@ -1,10 +1,12 @@
 
 import type { FastifyRequest , FastifyReply } from "fastify";
 import bcrypt from 'bcrypt'
+import jwt from "jsonwebtoken";
 import type { SignupBody, SigninBody } from "../utils/types.js";
-import  jwt from "jsonwebtoken"
 import type { Secret , SignOptions } from "jsonwebtoken";
-import appPool from "../config/db/dbInstance.js";
+import { connection } from "../config/db/connect.js";
+
+
 
 
 export const signup = async (request: FastifyRequest<{Body: SignupBody}>, reply: FastifyReply ):Promise<void> => {
@@ -18,7 +20,7 @@ export const signup = async (request: FastifyRequest<{Body: SignupBody}>, reply:
         return reply.status(400).send({message: "Invalid inputs"})
     }
 
-    const existingUser = await appPool.query(
+    const existingUser = await connection.query(
         `SELECT id 
          FROM userSchema.users
          WHERE email = $1
@@ -32,7 +34,7 @@ export const signup = async (request: FastifyRequest<{Body: SignupBody}>, reply:
 
     const passHash:string = await bcrypt.hash(password , 10)
 
-    const result = await appPool.query(
+    const result = await connection.query(
         ` 
         INSERT INTO userSchema.users
              (name, email, password_hash)
@@ -66,7 +68,7 @@ export const login = async(request: FastifyRequest<{Body: SigninBody}>, reply: F
         return reply.status(500).send({message: 'Something went wrong'})
     }
 
-    const existingUser = await appPool.query(
+    const existingUser = await connection.query(
         `
          SELECT id 
          FROM userSchema.users
@@ -142,7 +144,7 @@ export const logout = async (request:FastifyRequest , reply: FastifyReply) => {
 
 export const getCurrentUser = async (request:FastifyRequest , reply: FastifyReply) => {
     try {
-        const currentUser = await appPool.query(
+        const currentUser = await connection.query(
             `
             SELECT id , name , email, is_active, created_at, updated_at 
             FROM userSchema.users

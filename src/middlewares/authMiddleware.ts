@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
-import appPool from "../config/db/dbInstance.js";
+import { connection } from "../config/db/connect.js";
 
 
 declare module "fastify" {
@@ -36,7 +36,7 @@ export const authMiddleware = async (request: FastifyRequest , reply: FastifyRep
         }
 
         try {
-            const  existingUser = await appPool.query(
+            const  existingUser = await connection.query(
                 `
                 SELECT id, email FROM userSchema.users
                 WHERE id = $1

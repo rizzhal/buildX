@@ -71,17 +71,17 @@ export const login = async(request: FastifyRequest<{Body: SigninBody}>, reply: F
 
     const existingUser = await connection.query(
         `
-         SELECT id 
+         SELECT id, password_hash
          FROM userSchema.users
-         WHERE email = $1 AND
+         WHERE email = $1 
          `,
          [email]
     )
-    if(existingUser.rows.length > 0){
+    if(existingUser.rows[0].length > 0){
         return reply.status(409).send({message: `User already exists`})
     }
 
-    const isMatch = await bcrypt.compare(password , existingUser.rows[0].password)
+    const isMatch = await bcrypt.compare(password , existingUser.rows[0].password_hash)
     
     if(!isMatch){
         throw new Error("Something went wrong")
@@ -97,8 +97,6 @@ export const login = async(request: FastifyRequest<{Body: SigninBody}>, reply: F
     const token = jwt.sign(payload , SECRET , 
         { expiresIn: EXPIRY }
      )
-
-     console.log(token)
 
      if(!token){
         throw new Error("something went wrong in logging in")
@@ -119,6 +117,8 @@ export const login = async(request: FastifyRequest<{Body: SigninBody}>, reply: F
         if(error instanceof Error){
 
             reply.status(500).send({ message: " Error logging in " })
+
+            console.error('Error logging in' , error.message)
         }
     }
 
@@ -149,9 +149,7 @@ export const getCurrentUser = async (request:FastifyRequest , reply: FastifyRepl
             `
             SELECT id , name , email, is_active, created_at, updated_at 
             FROM userSchema.users
-            where id = $1
             `,
-
         )
         const userId = currentUser.rows[0]
         
@@ -167,6 +165,7 @@ export const getCurrentUser = async (request:FastifyRequest , reply: FastifyRepl
         if(error instanceof Error)
         {
             reply.status(500).send({ message: "Error getting user" })
+            console.error(error.message)
         } else {
             console.error("Internal server error" , error)
         }

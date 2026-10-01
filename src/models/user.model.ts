@@ -2,9 +2,8 @@
 import { connection } from "../config/db/connect.js"
 
 // User schema
-async function userSchema():Promise<void> {
+export async function userSchema():Promise<void> {
     try {
-       
         await connection.query(`CREATE SCHEMA IF NOT EXISTS userSchema`)
         // Create table as user's table
         await connection.query(`

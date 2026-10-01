@@ -1,15 +1,18 @@
+import * as dotenv from "dotenv"
+dotenv.config();
 import fastify from "fastify";
 import fastifyCookie from "@fastify/cookie";
-import * as dotenv from "dotenv"
 import { userRoutes } from "./routes/authRoute.js";
+import { userSchema } from "./models/user.model.js";
 
-dotenv.config();
 
 const app = fastify(
     {
         logger:true,
     }
 )
+
+await userSchema();
 
 app.register(fastifyCookie , {
     secret: "cookieSecret",

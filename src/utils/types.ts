@@ -10,10 +10,10 @@ export type SigninBody = {
     password: string
 }
 
-export type PoolConfig = {
-    user? : string,
-    password? : string,
-    host? : string,
-    port?: number,
-    database? : string
-}
+// export type PoolConfig = {
+//     user? : string | undefined,
+//     password? : string | undefined,
+//     host? : string | undefined,
+//     port?: number | undefined,
+//     database? : string | undefined
+// }

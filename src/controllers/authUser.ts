@@ -52,6 +52,7 @@ export const signup = async (request: FastifyRequest<{Body: SignupBody}>, reply:
     } catch (error:unknown) {
         if(error instanceof Error){
             reply.status(500).send({message: 'Internal server error'})
+            console.error("Error in signing up" , error.message)
         } else {
             console.error("Something went wrong" , error)
         }

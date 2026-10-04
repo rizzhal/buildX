@@ -9,7 +9,7 @@ export async function PostsSchema(): Promise<void> {
             `
             CREATE TABLE IF NOT EXISTS postschema.posts(
             id          BIGSERIAL PRIMARY KEY,
-            user_id    BIGINT NOT NULL,
+            user_id     BIGINT NOT NULL,
             content     VARCHAR(280),
             created_at  TIMESTAMPTZ DEFAULT NOW(),
 
@@ -22,7 +22,7 @@ export async function PostsSchema(): Promise<void> {
         )
         await connection.query(`
 
-            CREATE TABLE IF NOT EXISTS postschema.posts_media(
+            CREATE TABLE IF NOT EXISTS postschema.post_media(
             id              BIGSERIAL PRIMARY KEY,
             post_id         BIGSERIAL NOT NULL REFERENCES postschema.posts(id) ON DELETE CASCADE,
             media_type      VARCHAR(10) NOT NULL,
@@ -34,6 +34,12 @@ export async function PostsSchema(): Promise<void> {
             )
 
             `)
+
+            await connection.query(
+                `
+                CREATE INDEX idx_post_media_post_id ON post_media(post_id)
+                `
+            )
 
         console.log("posts table created sucessfully")
     } catch (error: unknown) {

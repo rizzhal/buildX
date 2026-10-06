@@ -2,9 +2,10 @@ import * as dotenv from "dotenv"
 dotenv.config();
 import fastify from "fastify";
 import fastifyCookie from "@fastify/cookie";
-import { userRoutes } from "./routes/authRoute.js";
+import { userRoutes } from "./routes/auth.route.js";
 import { userSchema } from "./models/user.model.js";
 import fastifyMultipart from "@fastify/multipart";
+import { postRoutes } from "./routes/posts.route.js";
 
 
 const app = fastify(
@@ -20,7 +21,8 @@ app.register(fastifyCookie , {
     hook: "onRequest"
 }) 
 
-app.register(userRoutes , { prefix : '/api' })
+app.register(userRoutes , { prefix : '/api' });
+app.register(postRoutes , { prefix: '/api' })
 
 app.register(fastifyMultipart , {
     limits: {

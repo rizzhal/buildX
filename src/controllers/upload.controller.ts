@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { UploadPolicy } from "../utils/interface.js";
-import { InternalError, UploadError } from "../errors/upload.error.js";
+import { InternalError } from "../errors/upload.error.js";
 import { saveUpload } from "../service/upload.service.js";
 import { ImagePolicy, VideoPolicy } from "../config/db/upload.config.js";
 

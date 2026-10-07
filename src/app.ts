@@ -3,9 +3,10 @@ dotenv.config();
 import fastify from "fastify";
 import fastifyCookie from "@fastify/cookie";
 import { userRoutes } from "./routes/auth.route.js";
-import { userSchema } from "./models/user.model.js";
+import { PostsSchema, userSchema } from "./models/build.model.js";
 import fastifyMultipart from "@fastify/multipart";
 import { postRoutes } from "./routes/posts.route.js";
+
 
 
 const app = fastify(
@@ -15,6 +16,7 @@ const app = fastify(
 )
 
 await userSchema();
+await PostsSchema();
 
 app.register(fastifyCookie , {
     secret: "cookieSecret",

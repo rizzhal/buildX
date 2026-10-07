@@ -119,6 +119,8 @@ export const login = async(request: FastifyRequest<{Body: SigninBody}>, reply: F
             reply.status(500).send({ message: " Error logging in " })
 
             console.error('Error logging in' , error.message)
+        } else {
+            console.error("Internal server error in login")
         }
     }
 

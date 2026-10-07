@@ -11,6 +11,8 @@ export const CreatePost = async (
     : Promise<void> => {
     
     const { content } = request.body
+    
+    const id = request.user.id
 
     if(!content) {
 
@@ -23,12 +25,12 @@ export const CreatePost = async (
     const result = await connection.query(
         `
         INSERT INTO postSchema.posts 
-            (content)
+            (user_id , content)
         VALUES 
-             ($1)
+             ($1 , $2)
         RETURNING id , user_id , content, created_at      
         `,
-            [content]
+            [id, content]
         
     )
     
@@ -37,8 +39,12 @@ export const CreatePost = async (
         result: result.rows[0] 
      })
 
-     } catch {
-        throw new InternalError('Something went wrong while uploading' , 500)
+     } catch(error: unknown) {
+        if(error instanceof Error){
+            console.error(error.message)
+        }
+        throw new InternalError('Something went wrong in posting' , 500)
+        
     }
 
 }

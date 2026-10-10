@@ -36,7 +36,7 @@ export async function PostsSchema(): Promise<void> {
             `
             CREATE TABLE IF NOT EXISTS postschema.posts(
             id          BIGSERIAL PRIMARY KEY,
-            user_id     BIGINT NOT NULL,
+            user_id     BIGSERIAL NOT NULL,
             content     VARCHAR(280),
             created_at  TIMESTAMPTZ DEFAULT NOW(),
 

@@ -55,11 +55,11 @@ export const getPosts = async (
 
     try {
 
-    const getPosts = await  connection.query(
+    const getPosts = await connection.query(
         `
-        SELECT u.id , u.name, u.email, p.content
+        SELECT u.id , u.name, u.email, p.content, p.id
         FROM userSchema.users u
-        INNER JOIN posts p ON u.id = p.users_id
+        INNER JOIN postschema.posts p ON u.id = p.user_id
         `
     )
      const posts = await getPosts.rows[0];
@@ -70,7 +70,11 @@ export const getPosts = async (
     
      return reply.status(200).send({ posts })
 
-      } catch {
+      } catch (error: any) {
+
+        if(error instanceof Error) {
+            console.error("Error in get-posts controller" , error.message);
+        }
 
         throw new InternalError("Internal server error ,  cannot get posts" , 500)
     }
@@ -94,12 +98,13 @@ export const UpdatePosts = async (
 
     const updatePosts = await connection.query(
         `
-       UPDATE postSchema.posts 
+       UPDATE postschema.posts 
        SET content = $1
-       WHERE id = $2
+       WHERE posts.id = $2
         `,
         [content , contentId]
     )
+
 
     if(updatePosts.rowCount === 0){
 
@@ -107,7 +112,18 @@ export const UpdatePosts = async (
 
     }
 
-    } catch  {
+    return reply.status(200).send({
+        message: "post updated successfully",
+        
+    })
+
+    } catch (error: any)  {
+        
+        if(error instanceof Error){
+
+            console.error(error.message)
+
+        }
 
         throw new InternalError("Internal server error in UpdatePosts" , 500)
         
@@ -120,23 +136,25 @@ export const DeletePosts = async (
     reply: FastifyReply   
 ): Promise<void> => {
 
-    const contentId = request.params.id
+    const contentId: number = Number(request.params.id)
 
-    const { content } = request.body
+    if(!Number.isInteger(contentId) || contentId <= 0){
+        return reply.status(404).send({message: "content id not found"})
+    }
+
+    const author = request.user.id;
 
     try {
     
-    if(!content) {
-        return reply.status(400).send({ message: "content is required" })
-    }
 
     const deletePost = await connection.query(
         `
-        DELETE postSchema.posts
-        WHERE content = $1
-        AND id = $2
+        DELETE FROM postschema.posts
+        WHERE posts.user_id = $1 
+        AND posts.id = $2
+        RETURNING id
         `,
-        [content , contentId]
+        [author , contentId]
     ) 
 
     if(deletePost.rowCount === 0) {
@@ -147,9 +165,10 @@ export const DeletePosts = async (
 
     return reply.status(200).send({ message: "post deleted successfully"})
 
-     } catch {
-
+     } catch (error: unknown) {
+        if(error instanceof Error) console.error("Error deleting post" , error.message )
         throw new InternalError("Internal server error in delete posts " , 500)
         
     }
 }
+

@@ -12,13 +12,14 @@ export const postRoutes: FastifyPluginAsync = async (fastify, options ): Promise
         });
 
         fastify.get("/posts" , getPosts);
+    
         
-        fastify.put("/edit" , {
+        fastify.put("/edit/:id" , {
             preHandler: authMiddleware,
             handler: UpdatePosts
         });
 
-        fastify.delete("/delete" , {
+        fastify.delete("/delete/:id" , {
             preHandler: authMiddleware,
             handler: DeletePosts
         });

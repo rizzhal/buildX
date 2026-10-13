@@ -6,6 +6,7 @@ import { userRoutes } from "./routes/auth.route.js";
 import { PostsSchema, userSchema } from "./models/build.model.js";
 import fastifyMultipart from "@fastify/multipart";
 import { postRoutes } from "./routes/posts.route.js";
+import { uploadRoute } from "./routes/upload.route.js";
 
 
 
@@ -25,6 +26,7 @@ app.register(fastifyCookie , {
 
 app.register(userRoutes , { prefix : '/api' });
 app.register(postRoutes , { prefix: '/api' })
+app.register(uploadRoute , {prefix: '/api'})
 
 app.register(fastifyMultipart , {
     limits: {

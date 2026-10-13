@@ -2,6 +2,7 @@ import type { FastifyReply, FastifyRequest } from "fastify"
 import type { PostsBody } from "../utils/types.js"
 import { connection } from "../config/db/connect.js";
 import { InternalError } from "../errors/upload.error.js";
+import cloudinary from "cloudinary";
 
 
 
@@ -38,6 +39,12 @@ export const CreatePost = async (
         message: "content created successfully",
         result: result.rows[0] 
      })
+
+     // file upload service to cloudinary 
+
+    // const upload = cloudinary.v2.uploader.upload({
+
+    // })
 
      } catch(error: unknown) {
         if(error instanceof Error){

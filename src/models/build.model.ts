@@ -51,13 +51,13 @@ export async function PostsSchema(): Promise<void> {
 
             CREATE TABLE IF NOT EXISTS postschema.post_media(
             id              BIGSERIAL PRIMARY KEY,
-            post_id         BIGSERIAL NOT NULL REFERENCES postschema.posts(id) ON DELETE CASCADE,
-            media_type      VARCHAR(10) NOT NULL,
-            thumbnail_url   VARCHAR(500),
+            post_id         BIGINT NOT NULL REFERENCES postschema.posts(id) ON DELETE CASCADE,
+            media_type      VARCHAR(10) NOT NULL CHECK (media_type IN ('image' , 'video' , 'gif')),
+            url             VARCHAR(500),
             width           INT,
             height          INT,
-            sort_order      INT DEFAULT 0,
-            created_at      TIMESTAMPTZ DEFAULT NOW()
+            sort_order      INT NOT NULL DEFAULT 0,
+            created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
 
             `)
